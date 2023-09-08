@@ -1,5 +1,6 @@
 package com.example.springtoken.auth;
 
+import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -36,6 +37,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
         String jwtToken = HEADER.substring(7);
         String userMail = jwtService.extractUserName(jwtToken);
+
         if (userMail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(userMail);
             if (jwtService.isTokenValid(jwtToken, userDetails)) {

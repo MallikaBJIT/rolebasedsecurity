@@ -6,7 +6,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+import com.example.springtoken.exception.CustomException;
 import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.SignatureException;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.web.csrf.InvalidCsrfTokenException;
 import org.springframework.stereotype.Service;
 
 import io.jsonwebtoken.Claims;
@@ -54,11 +58,17 @@ public class JwtService {
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String userName = extractUserName(token);
-        return (!isTokenExpired(token) && userName.equals(userDetails.getUsername()));
+        if (isTokenExpired(token) && userName.equals(userDetails.getUsername())) {
+            throw new CustomException("Invalid token", HttpStatus.UNAUTHORIZED);
+        }
+        return true;
     }
 
     private boolean isTokenExpired(String token) {
-        return extractExpirationDate(token).before(new Date());
+        if (extractExpirationDate(token).before(new Date())) {
+            throw new CustomException("Token is expired", HttpStatus.UNAUTHORIZED);
+        }
+        return false;
     }
 
     private Date extractExpirationDate(String token) {

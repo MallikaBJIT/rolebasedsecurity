@@ -18,10 +18,18 @@ public class DemoController {
         return ResponseEntity.ok("hello from secured admin");
     }
 
-    @GetMapping("/hello")
-    public ResponseEntity<String> hello() {
-        return ResponseEntity.ok("hello");
+    @GetMapping("/")
+    public ResponseEntity<String> home() {
+        return ResponseEntity.ok("welcome everyone");
     }
 
+    @GetMapping("/adminpage")
+    public ResponseEntity<String> adminpage() {
+        return ResponseEntity.ok("welcome to admin page");
+    }
 
+    @GetMapping("/userpage")
+    public ResponseEntity<String> userpage() {
+        return ResponseEntity.ok("welcome to user page");
+    }
 }
