@@ -3,6 +3,7 @@ package com.example.springtoken.service;
 import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -36,7 +37,13 @@ public class JwtService {
     }
 
     public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
-        return Jwts.builder().setClaims(extraClaims).setSubject(userDetails.getUsername())
+    	List<String> roles = userDetails.getAuthorities()
+    									.stream()
+    									.map(role -> role.getAuthority().toUpperCase())
+    									.toList();
+        return Jwts.builder().setClaims(extraClaims)
+        		.claim("role", roles)
+        		.setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 20 * 60))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256).compact();

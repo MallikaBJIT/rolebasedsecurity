@@ -17,6 +17,8 @@ import com.example.springtoken.entity.Role;
 import com.example.springtoken.entity.User;
 import com.example.springtoken.repository.UserRepository;
 
+import java.util.stream.Collectors;
+
 @Service
 @AllArgsConstructor
 public class AuthenticationService {
@@ -26,22 +28,28 @@ public class AuthenticationService {
     private PasswordEncoder passwordEncoder;
 
     public AuthenticationResponse register(UserRequestDto request) {
-        boolean isPresent = userRepository.findByMail(request.getMail()).isPresent();
+        boolean isPresent = userRepository.findByEmail(request.getEmail()).isPresent();
         if (isPresent) {
             throw new CustomException("Mail should be unique", HttpStatus.BAD_REQUEST);
         }
-        var user = User.builder().name(request.getName()).mail(request.getMail())
+        var user = User.builder().name(request.getName()).email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .role(Role.valueOf(request.getRole())).build();
+                .roles(request
+                        .getRoles()
+                        .stream()
+                        .map(Role::valueOf)
+                        .collect(Collectors.toSet()))
+                .build();
         userRepository.save(user);
         var jwtToken = jwtService.generateToken(user);
         return AuthenticationResponse.builder().token(jwtToken).build();
     }
 
-    public AuthenticationResponse authenticate(AuthenticationRequest request) throws HttpMessageNotReadableException, BadCredentialsException {
+    public AuthenticationResponse authenticate(AuthenticationRequest request)
+            throws HttpMessageNotReadableException, BadCredentialsException {
         authenticationManager
-                .authenticate(new UsernamePasswordAuthenticationToken(request.getMail(), request.getPassword()));
-        var user = userRepository.findByMail(request.getMail()).orElseThrow();
+                .authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+        var user = userRepository.findByEmail(request.getEmail()).orElseThrow();
         var jwtToken = jwtService.generateToken(user);
         return AuthenticationResponse.builder().token(jwtToken).build();
     }

@@ -1,5 +1,7 @@
 package com.example.springtoken.dto;
 
+import java.util.Set;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -12,9 +14,9 @@ public class UserRequestDto {
     @NotNull(message = "Name is required")
     private String name;
     @Email(message = "Invalid email")
-    private String mail;
+    private String email;
     @NotNull(message = "Password is required")
     private String password;
     @NotNull(message = "Role is required")
-    private String role;
+    private Set<String> roles;
 }
